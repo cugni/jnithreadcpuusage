@@ -1,0 +1,71 @@
+AC_INIT([libThreadCPUUsage],[1.0.0],,[libThreadCPUUsage])
+
+dnl for target_os
+AC_CANONICAL_SYSTEM
+
+AC_CONFIG_SRCDIR([jni-src/libThreadCPUUsage.c])
+AM_INIT_AUTOMAKE
+AM_CONFIG_HEADER(jni-src/config.h)
+dnl JNI can only use shared objects
+AM_DISABLE_STATIC
+
+dnl for _GNU_SOURCE in config.h which is needed for RUSAGE_THREAD on linux systems
+AC_USE_SYSTEM_EXTENSIONS
+
+AC_ARG_VAR([JAVA_HOME], [Java Runtime Environment (JRE) location])
+AC_ARG_VAR([JAVA], [java location])
+AC_ARG_VAR([JAVAC], [javac location])
+AC_ARG_VAR([JAVAH], [javah location])
+AC_ARG_VAR([JAR], [jar location])
+AC_ARG_VAR([CP], [cp location])
+AC_ARG_VAR([RM], [rm location])
+#AC_ARG_VAR([MKDIR], [mkdir location])
+AC_ARG_VAR([CHMOD], [chmod location])
+
+case $target_os in
+     linux*)	JVM_OS=linux ;;
+     solaris*)  JVM_OS=solaris ;;
+     *)         JVM_OS=$target_os ;;
+esac
+
+dnl check for JAVA_HOME and add the java include to CFLAGS
+AS_IF([test -z "$JAVA_HOME"],
+[AC_MSG_FAILURE([JAVA_HOME has not been set.  JAVA_HOME must be set at run time to locate jni.h.])],
+[CFLAGS="-I$JAVA_HOME/include -I$JAVA_HOME/include/$JVM_OS $CFLAGS"])
+
+AC_PATH_PROG([JAVA], [java], [AC_MSG_FAILURE([Can't find java])], [$JAVA_HOME/bin$PATH_SEPARATOR$PATH])
+AC_PATH_PROG([JAVAC], [javac], [AC_MSG_FAILURE([Can't find javac])], [$JAVA_HOME/bin$PATH_SEPARATOR$PATH])
+AC_PATH_PROG([JAVAH], [javah], [AC_MSG_FAILURE([Can't find javah])], [$JAVA_HOME/bin$PATH_SEPARATOR$PATH])
+AC_PATH_PROG([JAR], [jar], [AC_MSG_FAILURE([Can't find jar])], [$JAVA_HOME/bin$PATH_SEPARATOR$PATH])
+AC_PATH_PROG([JAVADOC], [javadoc], [AC_MSG_FAILURE([Can't find javadoc])], [$JAVA_HOME/bin$PATH_SEPARATOR$PATH])
+
+#AC_CHECK_PROG([CP], [cp], [cp], [AC_MSG_FAILURE([Can't find cp])])
+#AC_CHECK_PROG([RM], [rm], [rm], [AC_MSG_FAILURE([Can't find rm])])
+#AC_CHECK_PROG([MKDIR], [mkdir], [mkdir], [AC_MSG_FAILURE([Can't find mkdir])])
+AC_CHECK_PROG([CHMOD], [chmod], [chmod], [AC_MSG_FAILURE([Can't find chmod])])
+
+dnl check for jni.h
+AC_CHECK_HEADER([jni.h], [have_jni=yes], [AC_MSG_FAILURE([The Java Native Interface is required for Java feature.])])
+
+dnl for automake
+AM_PROG_LIBTOOL
+
+dnl find and test the C compiler
+AC_PROG_CC
+AC_LANG_C
+
+AC_PROG_INSTALL
+AC_PROG_MAKE_SET
+               
+AC_HEADER_STDC
+
+AC_CHECK_HEADER(sys/resource.h,,AC_MSG_ERROR(no sys/resource.h for getrusage))
+AC_CHECK_FUNC(getrusage,,AC_MSG_ERROR(no getrusage()))
+                  
+VERSION="0.0.1"
+AC_SUBST(VERSION)
+
+dnl read Makefile.in and write Makefile
+AC_OUTPUT(Makefile)
+AC_OUTPUT(jni-src/Makefile)
+AC_OUTPUT(java-src/Makefile)

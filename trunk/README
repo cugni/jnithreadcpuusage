@@ -1,0 +1,28 @@
+This JNI library exposes a Java method that will return the current CPU
+usage time for on a per-thread basis.  This is useful for benchmarking a
+servlet request for example.
+
+It is based on per-thread getrusage() which currently is known to only be
+available in Linux > 2.6.26 and Solaris.
+
+Quick Start:
+
+If you want to install the JNI libraries in /usr/local/jni:
+  ./configure --prefix=/usr/local/jni
+  make
+  make test
+  make install
+
+To run your Java program with the JNI library:
+  java -classpath /usr/local/jni/lib/threadCPUUsage.jar \
+    -Djava.library.path=/usr/local/jni/lib <YourClassName>
+
+Synopsis:
+    ThreadCPUUsage cpuUsage = ThreadCPUUsage.getCPUUsage();
+    System.out.println(
+      "totalUserCPUTime=" + cpuUsage.getTotalUserCPUTime() + ", " +
+      "totalSystemCPUTime=" + cpuUsage.getTotalSystemCPUTime()
+    );
+
+Local Javadoc API documentation available in
+<installdir>/doc/libThreadCPUUsage.
