@@ -31,7 +31,8 @@ esac
 dnl check for JAVA_HOME and add the java include to CFLAGS
 AS_IF([test -z "$JAVA_HOME"],
 [AC_MSG_FAILURE([JAVA_HOME has not been set.  JAVA_HOME must be set at run time to locate jni.h.])],
-[CFLAGS="-I$JAVA_HOME/include -I$JAVA_HOME/include/$JVM_OS $CFLAGS"])
+[CFLAGS="-I$JAVA_HOME/include -I$JAVA_HOME/include/$JVM_OS $CFLAGS"
+CPPFLAGS="-I$JAVA_HOME/include -I$JAVA_HOME/include/$JVM_OS $CPPFLAGS"])
 
 AC_PATH_PROG([JAVA], [java], [AC_MSG_FAILURE([Can't find java])], [$JAVA_HOME/bin$PATH_SEPARATOR$PATH])
 AC_PATH_PROG([JAVAC], [javac], [AC_MSG_FAILURE([Can't find javac])], [$JAVA_HOME/bin$PATH_SEPARATOR$PATH])
